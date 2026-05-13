@@ -2,7 +2,7 @@ import TopFailuresWidget from "./components/TopFailuresWidget";
 
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-6">
       <TopFailuresWidget />
     </div>
   );

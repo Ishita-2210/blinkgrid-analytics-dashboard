@@ -176,7 +176,23 @@ CREATE TABLE tickets (
     resolved BOOLEAN
 );
 ```
+# Screenshots
 
+## Populated State
+
+![Populated State](./screenshots/populated.png)
+
+---
+
+## Loading State
+
+![Loading State](./screenshots/loading.png)
+
+---
+
+## Empty State
+
+![Empty State](./screenshots/empty.png)
 ---
 
 # Author
