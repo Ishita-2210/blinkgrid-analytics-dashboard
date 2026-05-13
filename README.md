@@ -180,19 +180,19 @@ CREATE TABLE tickets (
 
 ## Populated State
 
-![Populated State](./screenshots/populated.png)
+![Populated State](./screenshots/Populated_State.png)
 
 ---
 
 ## Loading State
 
-![Loading State](./screenshots/loading.png)
+![Loading State](./screenshots/Loading_State.png)
 
 ---
 
 ## Empty State
 
-![Empty State](./screenshots/empty.png)
+![Empty State](./screenshots/Empty_State.png)
 ---
 
 # Author
