@@ -3,7 +3,11 @@ const router = express.Router();
 const pool = require("../db");
 
 router.get("/top-failures/:customer_id", async (req, res) => {
-  const { customer_id } = req.params;
+  if (!customer_id || isNaN(customer_id)) {
+  return res.status(400).json({
+    error: "Invalid customer_id",
+  });
+}
 
   try {
     const query = `
@@ -26,7 +30,7 @@ router.get("/top-failures/:customer_id", async (req, res) => {
 
     const formattedData = result.rows.map((row) => ({
       failure_category: row.failure_category,
-      failure_count: parseInt(row.failure_count),
+      failure_count: parseInt(row.failure_count).toString(),
     }));
 
     console.log(formattedData);
