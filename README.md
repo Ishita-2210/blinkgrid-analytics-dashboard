@@ -15,7 +15,7 @@ The application includes:
 - Optimized PostgreSQL aggregation query
 - Express.js REST API endpoint
 - React + TypeScript analytics widget
-- Loading, empty, and populated UI states
+- Loading, empty, populated, and error UI states
 - Responsive modern dashboard interface
 
 ---
@@ -48,8 +48,11 @@ The application includes:
   - LIMIT
 - Proper NULL filtering
 - REST API endpoint integration
+- Customer ID validation
+- Environment variable configuration
 - Loading skeleton UI state
 - Empty state handling
+- Error state handling
 - Responsive SaaS-style analytics widget
 - Clean component-based frontend structure
 
@@ -60,7 +63,7 @@ The application includes:
 ```sql
 SELECT
     t.failure_category,
-    COUNT(*) AS failure_count
+    CAST(COUNT(*) AS INTEGER) AS failure_count
 FROM tickets t
 JOIN customers c
     ON t.customer_id = c.customer_id
@@ -89,6 +92,27 @@ GET /api/analytics/top-failures/1
 
 ---
 
+# API Response Example
+
+```json
+[
+  {
+    "failure_category": "billing_confusion",
+    "failure_count": 2
+  },
+  {
+    "failure_category": "integration_error",
+    "failure_count": 2
+  },
+  {
+    "failure_category": "feature_misunderstanding",
+    "failure_count": 1
+  }
+]
+```
+
+---
+
 # Project Structure
 
 ```bash
@@ -99,6 +123,7 @@ BlinkGrid_Task/
 │   ├── db.js
 │   ├── server.js
 │   ├── package.json
+│   ├── .env.example
 │
 ├── frontend/
 │   ├── src/
@@ -129,6 +154,9 @@ Displays:
 > "No failure patterns detected — this customer is in great shape."
 
 when no unresolved failure categories exist for the selected customer.
+
+## Error State
+Displays a user-friendly error message if the API request fails.
 
 ## Populated State
 Displays the top failure categories along with ticket counts and visual progress indicators.
@@ -193,7 +221,7 @@ PORT=5000
 Start backend server:
 
 ```bash
-node server.js
+npm start
 ```
 
 Backend runs on:
@@ -218,7 +246,13 @@ Install dependencies:
 npm install
 ```
 
-Start development server:
+Create a `.env` file inside the frontend directory:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+Start frontend development server:
 
 ```bash
 npm run dev
@@ -275,11 +309,38 @@ VALUES
 
 ---
 
+# Environment Variables
+
+## Backend `.env`
+
+```env
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=analytics_db
+DB_PASSWORD=your_password
+DB_PORT=5432
+PORT=5000
+```
+
+---
+
+## Frontend `.env`
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+---
+
 # Backend Notes
 
-The backend uses:
+The backend implementation includes:
+
 - PostgreSQL connection pooling
 - Parameterized SQL queries
+- Customer ID validation
+- CORS middleware support
+- Environment-based configuration
 - Proper NULL filtering
 - Aggregation directly within the database layer for optimized analytics performance
 
