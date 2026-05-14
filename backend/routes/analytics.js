@@ -9,7 +9,7 @@ router.get("/top-failures/:customer_id", async (req, res) => {
     const query = `
       SELECT
           t.failure_category,
-          COUNT(*) AS failure_count
+          CAST(COUNT(*) AS INTEGER) AS failure_count
       FROM tickets t
       JOIN customers c
           ON t.customer_id = c.customer_id
@@ -24,11 +24,19 @@ router.get("/top-failures/:customer_id", async (req, res) => {
 
     const result = await pool.query(query, [customer_id]);
 
-    res.status(200).json(result.rows);
+    const formattedData = result.rows.map((row) => ({
+      failure_category: row.failure_category,
+      failure_count: parseInt(row.failure_count),
+    }));
+
+    console.log(formattedData);
+
+    return res.status(200).json(formattedData);
+
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
     });
   }
