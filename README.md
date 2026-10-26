@@ -72,7 +72,7 @@ WHERE
     AND t.resolved = FALSE
     AND t.failure_category IS NOT NULL
 GROUP BY t.failure_category
-ORDER BY failure_count DESC
+ORDER BY failure_count DESC, t.failure_category ASC
 LIMIT 3;
 ```
 
@@ -198,7 +198,7 @@ git clone https://github.com/Ishita-2210/blinkgrid-analytics-dashboard.git
 Navigate to backend:
 
 ```bash
-cd backend
+cd blinkgrid-analytics-dashboard/backend
 ```
 
 Install dependencies:
@@ -349,3 +349,13 @@ The backend implementation includes:
 # Author
 
 **Ishita Sahu**
+
+## Verification and implementation boundaries
+
+Use Node.js 24 and a running PostgreSQL instance. From `backend`, run `npm ci`, configure local credentials using `.env.example`, and start with `npm start`. On a fresh database, `psql -d analytics_db -f schema.sql` creates the tables and a partial index without dropping existing data. In a second terminal, run `npm ci` and `npm run dev` from `frontend`; copy `.env.example` to `.env` there if needed.
+
+Run `npm test` in `backend` for real HTTP route tests with a stubbed database boundary, and `npm run lint` plus `npm run build` in `frontend`. Tests verify ID rejection, parameter binding, numeric counts, empty results and error responses. They do not establish PostgreSQL query execution; a real database is required for that integration check.
+
+The API now validates positive PostgreSQL integer IDs, returns numeric counts and uses category names to break count ties. The widget cancels stale requests, clears previous errors when the customer changes and scales bars relative to the largest count. Customer 1 is the fixed demo selection; authentication and a customer picker are not implemented.
+
+The historical backend `node_modules` files remain preserved; `.gitignore` prevents adding more generated dependency files. A previously tracked `.env` is now a public template with an empty password. Configure your own local value before connecting; do not commit credentials.

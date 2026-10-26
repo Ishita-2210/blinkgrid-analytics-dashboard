@@ -15,31 +15,31 @@ const TopFailuresWidget = ({ customerId }: Props) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/analytics/top-failures/${customerId}`
-    )
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch analytics data");
-        }
-
-        return res.json();
-      })
-      .then((result) => {
-
-        // Optional delay for visible loading state
-        setTimeout(() => {
-          setData(result);
-          setLoading(false);
-        }, 1500);
-
-      })
-      .catch((error) => {
-        console.error(error);
-
-        setError("Failed to fetch analytics data.");
-        setLoading(false);
-      });
+    const controller = new AbortController();
+    let active = true;
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+        const response = await fetch(`${base}/api/analytics/top-failures/${customerId}`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Failed to fetch analytics data");
+        const result: unknown = await response.json();
+        if (!Array.isArray(result) || !result.every((item) =>
+          typeof item?.failure_category === "string" &&
+          Number.isInteger(item?.failure_count) && item.failure_count >= 0
+        )) throw new Error("Invalid analytics response");
+        if (active) setData(result);
+      } catch {
+        if (active) setError("Failed to fetch analytics data.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    void load();
+    return () => { active = false; controller.abort(); };
   }, [customerId]);
 
   // Loading State
@@ -126,7 +126,7 @@ const TopFailuresWidget = ({ customerId }: Props) => {
               <div
                 className="h-3 rounded-full bg-blue-500 transition-all duration-700 hover:bg-blue-600"
                 style={{
-                  width: `${item.failure_count * 30}%`,
+                  width: `${Math.min(100, (item.failure_count / Math.max(1, ...data.map((row) => row.failure_count))) * 100)}%`,
                 }}
               />
 
