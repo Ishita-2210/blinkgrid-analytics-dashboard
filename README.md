@@ -354,8 +354,17 @@ The backend implementation includes:
 
 Use Node.js 24 and a running PostgreSQL instance. From `backend`, run `npm ci`, configure local credentials using `.env.example`, and start with `npm start`. On a fresh database, `psql -d analytics_db -f schema.sql` creates the tables and a partial index without dropping existing data. In a second terminal, run `npm ci` and `npm run dev` from `frontend`; copy `.env.example` to `.env` there if needed.
 
-Run `npm test` in `backend` for real HTTP route tests with a stubbed database boundary, and `npm run lint` plus `npm run build` in `frontend`. Tests verify ID rejection, parameter binding, numeric counts, empty results and error responses. They do not establish PostgreSQL query execution; a real database is required for that integration check.
+Run `npm test` in `backend` for real HTTP route tests with a stubbed database boundary, and `npm run lint` plus `npm run build` in `frontend`. Tests verify ID rejection, parameter binding, numeric counts, empty results and error responses. The optional PostgreSQL integration suite executes the production analytics route against a real database in an isolated random schema. GitHub Actions supplies PostgreSQL 16; local runs skip that suite unless `TEST_DATABASE_URL` is set.
 
 The API now validates positive PostgreSQL integer IDs, returns numeric counts and uses category names to break count ties. The widget cancels stale requests, clears previous errors when the customer changes and scales bars relative to the largest count. Customer 1 is the fixed demo selection; authentication and a customer picker are not implemented.
 
 The historical backend `node_modules` files remain preserved; `.gitignore` prevents adding more generated dependency files. Run `npm ci` before starting the backend, even if that directory already exists: the lockfile contains security fixes newer than the historical vendor tree. The updated lockfiles are checked with `npm audit --omit=dev` and fresh-install tests. A previously tracked `.env` is now a public template with an empty password. Configure your own local value before connecting; do not commit credentials.
+
+
+## Real database integration
+
+This is the **BlinkGrid Analytics Dashboard** listed in the resumes. Its implementation demonstrates customer-specific aggregation and responsive UI states; no query-speed benchmark or business-impact figure is claimed.
+
+The GitHub Actions backend job starts a disposable PostgreSQL 16 service and runs both HTTP unit tests and real SQL integration. The integration checks category counts, resolved/NULL filtering, deterministic ties, top-three limits, customer isolation, invalid IDs and the schema's partial index. It creates and removes only a newly generated test schema.
+
+For a local PostgreSQL instance, set `TEST_DATABASE_URL` to a test database connection URL before running `npm test` from `backend`. A user with schema-creation permission is required. Without that variable the three dependency-light HTTP tests run and the database integration is explicitly skipped. Do not interpret a skipped integration as database verification.
